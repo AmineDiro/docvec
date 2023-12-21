@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Float32Array Example</title>
+  </head>
+  <body>
+    <script type="module">
+      import init, { Embedder } from "./pkg/doc_wasm.js";
+      const a = await init();
+      const emb = await new Embedder();
+      console.log(emb);
+    </script>
+  </body>
+</html>

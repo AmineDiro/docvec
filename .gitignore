@@ -1,0 +1,4 @@
+/target
+model/all-MiniLM-L6-v2
+model/gte-small
+*.onnx
