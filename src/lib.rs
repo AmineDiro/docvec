@@ -1,7 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use tokenizers::tokenizer::Tokenizer;
-
+use js_sys::Array;
 use wonnx::{
     utils::{InputTensor, OutputTensor},
     Session,
@@ -12,7 +11,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::console;
 
 static MODEL_DATA: &'static [u8] = include_bytes!(
-    "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/all-MiniLM-L6-v2/optimum/sim_model.onnx"
+    "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/gte-small/onnx/sim_model.onnx",
 );
 
 #[wasm_bindgen(start)]
@@ -39,20 +38,41 @@ impl Embedder {
         })
     }
 
-    pub async fn random_inference(&self) -> JsValue {
+    pub async fn random_inference(&self) -> Result<Array, String> {
         let mut input: HashMap<String, InputTensor> = HashMap::new();
-        let tokens = vec![1f32; 512];
-        let attention_mask = vec![1f32; 512];
-        let token_type_ids = vec![0f32; 512];
+        let mut tokens = vec![101, 2023, 2003, 1037, 7099, 102];
+        tokens.extend(vec![0; 506]);
+        // 1 indicates a value that should be attended to, while 0 indicates a padded value.
+        let mut attention_mask = vec![1; 6];
+        attention_mask.extend(vec![0; 506]);
+        // the “context” used for the question, has all its tokens represented by a 0,
+        let token_type_ids = vec![0; 512];
         // For now ['input_ids', 'token_type_ids', 'attention_mask']
         input.insert("input_ids".to_string(), tokens[..].into());
         input.insert("attention_mask".to_string(), attention_mask[..].into());
         input.insert("token_type_ids".to_string(), token_type_ids[..].into());
         let output = self.session.clone().run(&input).await.unwrap();
-        output.len().into()
+        match output
+            .get(&"last_hidden_state".to_string())
+            .unwrap()
+            .to_owned()
+        {
+            OutputTensor::F32(emb) => {
+                for i in 0..10 {
+                    console::log_1(&emb[i].into());
+                }
+                let array = Array::new_with_length(emb.len() as u32);
+                for value in emb {
+                    array.push(&value.into());
+                }
+                Ok(array)
+            }
+            _ => Err("can't have other type".to_string()),
+        }
     }
 }
 
+#[allow(dead_code)]
 async fn run_test() -> HashMap<String, OutputTensor> {
     let session = Session::from_path(
         // "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/all-MiniLM-L6-v2/sim_model.onnx",
@@ -62,14 +82,18 @@ async fn run_test() -> HashMap<String, OutputTensor> {
     .expect("can't create onnx inference session");
 
     let mut input: HashMap<String, InputTensor> = HashMap::new();
-    let tokens = vec![1f32; 512];
-    let attention_mask = vec![0f32; 512];
-    let token_type_ids = vec![32f32; 512];
+    let mut tokens = vec![101, 2023, 2003, 1037, 7099, 102];
+    tokens.extend(vec![0; 506]);
+    // 1 indicates a value that should be attended to, while 0 indicates a padded value.
+    let mut attention_mask = vec![1; 6];
+    attention_mask.extend(vec![0; 506]);
+    // the “context” used for the question, has all its tokens represented by a 0,
+    let token_type_ids = vec![0; 512];
     // For now ['input_ids', 'token_type_ids', 'attention_mask']
     input.insert("input_ids".to_string(), tokens[..].into());
     input.insert("attention_mask".to_string(), attention_mask[..].into());
     input.insert("token_type_ids".to_string(), token_type_ids[..].into());
-    let output = tokio_test::block_on(session.run(&input)).unwrap();
+    let output = pollster::block_on(session.run(&input)).unwrap();
     dbg!(&output.keys());
 
     match output
@@ -80,6 +104,7 @@ async fn run_test() -> HashMap<String, OutputTensor> {
         OutputTensor::F32(emb) => {
             dbg!(emb.len());
             dbg!(&emb[..10]);
+            dbg!(&emb[1000..1010]);
         }
         _ => unreachable!("can't have other type"),
     }
@@ -90,28 +115,26 @@ async fn run_test() -> HashMap<String, OutputTensor> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use env_logger;
     use pollster;
 
     #[test]
     fn test_load_model() {
-        env_logger::init();
         let output = pollster::block_on(run_test());
 
         assert!(output.len() >= 1)
     }
 
-    #[test]
-    fn test_tokenizer() {
-        let tokenizer = Tokenizer::from_file(
-            "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/gte-small/tokenizer.json",
-        )
-        .unwrap();
+    // #[test]
+    // fn test_tokenizer() {
+    //     let tokenizer = Tokenizer::from_file(
+    //         "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/gte-small/tokenizer.json",
+    //     )
+    //     .unwrap();
 
-        let encoding = tokenizer.encode("Hey there!", false).unwrap();
+    //     let encoding = tokenizer.encode("Hey there!", false).unwrap();
 
-        dbg!(encoding.get_tokens().len());
-        dbg!(encoding.get_ids().len());
-        dbg!(encoding.get_attention_mask().len());
-    }
+    //     dbg!(encoding.get_tokens().len());
+    //     dbg!(encoding.get_ids().len());
+    //     dbg!(encoding.get_attention_mask().len());
+    // }
 }

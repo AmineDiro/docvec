@@ -6,11 +6,22 @@
     <title>Float32Array Example</title>
   </head>
   <body>
+    <div id="text-file-contents"></div>
+    <!-- <script>
+      fetch("rfc4254.txt")
+        .then((response) => response.text())
+        .then(
+          (text) =>
+            (document.getElementById("text-file-contents").innerHTML = text)
+        );
+    </script> -->
     <script type="module">
       import init, { Embedder } from "./pkg/doc_wasm.js";
       const a = await init();
-      const emb = await new Embedder();
-      console.log(emb);
+      const embeddr = await new Embedder();
+      console.log(embeddr);
+      var random_embedding = await embeddr.random_inference();
+      console.log(random_embedding);
     </script>
   </body>
 </html>

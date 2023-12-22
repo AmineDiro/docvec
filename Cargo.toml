@@ -12,13 +12,9 @@ crate-type = ["cdylib"]
 console_error_panic_hook = "0.1.7"
 js-sys = "0.3.65"
 pollster = "0.3.0"
-tokenizers = "0.15.0"
-tokio-test = "0.4.3"
 wasm-bindgen = "0.2.88"
 wasm-bindgen-futures = "0.4.38"
 wonnx = { path = "../wonnx/wonnx" }
-# wonnx-preprocessing = { path = "../wonnx/preprocessing" }
-# wonnx-wasm = { path = "../wonnx/wonnx-wasm" }
 
 [dependencies.web-sys]
 # This version worked !
@@ -143,6 +139,3 @@ features = [
     "OffscreenCanvas",
     "Window",
 ]
-
-[dev-dependencies]
-env_logger = "0.10.1"
