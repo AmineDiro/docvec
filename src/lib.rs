@@ -52,18 +52,11 @@ impl Embedder {
         input.insert("attention_mask".to_string(), attention_mask[..].into());
         input.insert("token_type_ids".to_string(), token_type_ids[..].into());
         let output = self.session.clone().run(&input).await.unwrap();
-        match output
-            .get(&"last_hidden_state".to_string())
-            .unwrap()
-            .to_owned()
-        {
+        match output.get(&"last_hidden_state".to_string()).unwrap() {
             OutputTensor::F32(emb) => {
-                for i in 0..10 {
-                    console::log_1(&emb[i].into());
-                }
                 let array = Array::new_with_length(emb.len() as u32);
                 for value in emb {
-                    array.push(&value.into());
+                    array.push(&(*value).into());
                 }
                 Ok(array)
             }
