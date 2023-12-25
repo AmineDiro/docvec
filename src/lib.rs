@@ -11,12 +11,8 @@ use alloc::string::String;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
-static MODEL_DATA: &'static [u8] = include_bytes!(
-    "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/gte-small/onnx/sim_model.onnx",
-);
-static TOKENIZER_DATA: &'static [u8] = include_bytes!(
-    "/Users/aminedirhoussi/Documents/coding/doc-wasm/model/gte-small/tokenizer.json",
-);
+static MODEL_DATA: &'static [u8] = include_bytes!("../model/gte-small/onnx/sim_model.onnx",);
+static TOKENIZER_DATA: &'static [u8] = include_bytes!("../model/gte-small/tokenizer.json",);
 
 #[wasm_bindgen(start)]
 pub fn main() {
