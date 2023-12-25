@@ -23,7 +23,8 @@ function cleanString(inputString) {
     const hlText = "active Python core developers elected ";
 
     // Embedding
-    embeddr.embed_query(hlText).then((embd) => console.log(embd));
+    console.log("Embeding query string ...");
+    embeddr.embed_query(txt).then((embd) => console.log(embd));
     var elements = document
       .getElementById("text-contents")
       .getElementsByTagName("*");

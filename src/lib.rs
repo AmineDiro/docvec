@@ -10,6 +10,8 @@ extern crate alloc;
 use alloc::string::String;
 use wasm_bindgen::prelude::*;
 use web_sys::console;
+mod utils;
+use utils::average_pool;
 
 static MODEL_DATA: &'static [u8] = include_bytes!("../model/gte-small/onnx/sim_model.onnx",);
 static TOKENIZER_DATA: &'static [u8] = include_bytes!("../model/gte-small/tokenizer.json",);
@@ -43,21 +45,22 @@ impl Embedder {
 
     pub async fn embed_query(&self, txt: String) -> Result<Array, String> {
         let mut input: HashMap<String, InputTensor> = HashMap::new();
+        console::log_1(&format!("Embedding query {}", txt).into());
         let encoding = self.tokenizer.encode(txt, true).unwrap();
-        let tokens: Vec<f32> = encoding
+        let tokens: Vec<i32> = encoding
             .get_ids()
             .iter()
-            .map(|&e| e as f32)
+            .map(|&e| e as i32)
             .collect::<Vec<_>>();
         let token_type_ids = encoding
             .get_type_ids()
             .iter()
-            .map(|&e| e as f32)
+            .map(|&e| e as i32)
             .collect::<Vec<_>>();
         let attention_mask = encoding
             .get_attention_mask()
             .iter()
-            .map(|&e| e as f32)
+            .map(|&e| e as i32)
             .collect::<Vec<_>>();
 
         input.insert("input_ids".to_string(), tokens[..].into());
@@ -66,36 +69,20 @@ impl Embedder {
         let output = self.session.clone().run(&input).await.unwrap();
 
         match output.get(&"last_hidden_state".to_string()).unwrap() {
-            OutputTensor::F32(emb) => {
-                let array = Array::new_with_length(emb.len() as u32);
-                for value in emb {
-                    array.push(&(*value).into());
-                }
-                Ok(array)
-            }
-            _ => Err("can't have other type".to_string()),
-        }
-    }
+            OutputTensor::F32(last_hidden_layer) => {
+                let emb = average_pool(last_hidden_layer, &attention_mask, 384, 512);
+                console::log_1(
+                    &format!(
+                        "The generated embedding len: {}. first 10 eleemnts {:?}",
+                        emb.len(),
+                        &emb[..10]
+                    )
+                    .into(),
+                );
 
-    pub async fn random_emb(&self) -> Result<Array, String> {
-        let mut input: HashMap<String, InputTensor> = HashMap::new();
-        let mut tokens = vec![101, 2023, 2003, 1037, 7099, 102];
-        tokens.extend(vec![0; 506]);
-        // 1 indicates a value that should be attended to, while 0 indicates a padded value.
-        let mut attention_mask = vec![1; 6];
-        attention_mask.extend(vec![0; 506]);
-        // the “context” used for the question, has all its tokens represented by a 0,
-        let token_type_ids = vec![0; 512];
-        // For now ['input_ids', 'token_type_ids', 'attention_mask']
-        input.insert("input_ids".to_string(), tokens[..].into());
-        input.insert("attention_mask".to_string(), attention_mask[..].into());
-        input.insert("token_type_ids".to_string(), token_type_ids[..].into());
-        let output = self.session.clone().run(&input).await.unwrap();
-        match output.get(&"last_hidden_state".to_string()).unwrap() {
-            OutputTensor::F32(emb) => {
                 let array = Array::new_with_length(emb.len() as u32);
                 for value in emb {
-                    array.push(&(*value).into());
+                    array.push(&(value).into());
                 }
                 Ok(array)
             }
@@ -148,10 +135,10 @@ async fn run_test(query: String) -> HashMap<String, OutputTensor> {
         .unwrap()
         .to_owned()
     {
-        OutputTensor::F32(emb) => {
+        OutputTensor::F32(last_hidden_layer) => {
+            let emb = average_pool(&last_hidden_layer, &attention_mask, 384, 512);
             dbg!(emb.len());
             dbg!(&emb[..10]);
-            dbg!(&emb[1000..1010]);
         }
         _ => unreachable!("can't have other type"),
     }
@@ -166,7 +153,8 @@ mod tests {
 
     #[test]
     fn test_random_embedding() {
-        let output = pollster::block_on(run_test("this is a test".to_string()));
+        let query = String::from("active Python core developers elected");
+        let output = pollster::block_on(run_test(query));
         assert!(output.len() >= 1)
     }
 
