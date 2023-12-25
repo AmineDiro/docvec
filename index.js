@@ -10,10 +10,8 @@ function cleanString(inputString) {
 (async () => {
   const initResult = await init();
   // NOTE: Testing random inference
-  //   const embeddr = await new Embedder();
-  //   console.log(embeddr);
-  //   var random_embedding = await embeddr.random_inference();
-  //   console.log(random_embedding);
+  const embeddr = await new Embedder();
+  console.log(embeddr);
 
   // Search
   const button = document.getElementById("searchButton");
@@ -23,6 +21,9 @@ function cleanString(inputString) {
 
     // Try highlighting and matching here
     const hlText = "active Python core developers elected ";
+
+    // Embedding
+    embeddr.embed_query(hlText).then((embd) => console.log(embd));
     var elements = document
       .getElementById("text-contents")
       .getElementsByTagName("*");
