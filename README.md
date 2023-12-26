@@ -20,7 +20,7 @@ My goal for the project were:
   - [ ] Generate string embedding using `wonnx` and `gte-small` model:
     - [x] Add `Erf` operator to wonnx
     - [x] Modify `MatMul` broadcasting checks ( this is temporary)
-    - [ ] Reimplement `MatMul` with broadcasting
+    - [ ] Reimplement _correct_ `MatMul` with broadcasting
   - [x] Tokenize input in wasm `tokenizers`
   - [x] Build index :
     - [x] Split page text
