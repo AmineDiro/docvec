@@ -12,7 +12,7 @@ My goal for the project were:
 - Keep the JS to a minimum...
 - Simple index:
 
-# TODO:
+## TODO:
 
 - Backend:
 
