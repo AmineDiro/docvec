@@ -142,3 +142,6 @@ features = [
     "OffscreenCanvas",
     "Window",
 ]
+
+[profile.release]
+lto = true
