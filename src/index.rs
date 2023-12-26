@@ -42,7 +42,7 @@ impl Index {
             .collect();
         let mut k_indices = (0..distances.len()).collect::<Vec<_>>();
         k_indices.sort_by(|&a, &b| distances[a].partial_cmp(&distances[b]).unwrap());
-        dbg!(&k_indices[..k]);
+        // Return the k nearest
         k_indices[..k]
             .iter()
             .map(|&idx| self.content[idx].clone())
