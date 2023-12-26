@@ -26,10 +26,20 @@ My goal for the project were:
     --overwrite-input-shape "input_ids:1,512" "attention_mask:1,512" "token_type_ids:1,512"
    ```
 4. Install `wasm-pack`
+
    ```bash
    cargo install wasm-pack
    ```
-5. Build web assembly module & serve the page
+
+5. Clone modified version of `wonnx` (temporary)
+
+   ```bash
+   cd ..
+   git clone https://github.com/AmineDiro/wonnx.git
+   git checkout broadcast-matmul
+   ```
+
+6. Build web assembly module & serve the page
    ```bash
    cd ..  # go to project root
    ./build.sh && python3 -m http.server 8000
