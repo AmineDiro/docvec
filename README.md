@@ -10,17 +10,43 @@ My goal for the project were:
 - Use the Hardware for model inference and if possible use `wgpu`: Luckily I found the amazing project`wonnx`. I had to hack around some issues of runnign transformers and also implement some missing onnx operators (cf. PR) for this to work. Also I am still working on reimplementing the project's `MatMul` broadcasting and try if possible improving the compute shader performance.
 - Use Rust of course. Again amazing project `wasm-bindgen`
 - Keep the JS to a minimum...
-- Simple index:
+- Simple index : flat vector for now
+
+## Maintainer
+
+1. Download `gte-small` model from huggingface
+   ```bash
+   cd model/
+   git clone https://huggingface.co/Supabase/gte-small
+   ```
+2. Install onnx simplifier : [`onnxsim`](https://github.com/daquexian/onnx-simplifier)
+3. Simplify model and fix input batch size and sequence length
+   ```bash
+   python -m onnxsim gte-small/onnx/model.onnx  gte-small/onnx/sim_model.onnx \
+    --overwrite-input-shape "input_ids:1,512" "attention_mask:1,512" "token_type_ids:1,512"
+   ```
+4. Install `wasm-pack`
+   ```bash
+   cargo install wasm-pack
+   ```
+5. Build web assembly module & serve the page
+   ```bash
+   cd ..  # go to project root
+   ./build.sh && python3 -m http.server 8000
+   ```
+
+Now you can access the semantic search module on `http://localhost:8000` 🌟
 
 ## TODO:
 
-- Backend:
+- Backend (wasm):
 
   - [x] Project scaffolding using `wasm-bindgen`
   - [ ] Generate string embedding using `wonnx` and `gte-small` model:
     - [x] Add `Erf` operator to wonnx
     - [x] Modify `MatMul` broadcasting checks ( this is temporary)
     - [ ] Reimplement _correct_ `MatMul` with broadcasting
+    - [ ] Investigate float NaN issues on Vulkan backend for wgpu
   - [x] Tokenize input in wasm `tokenizers`
   - [x] Build index :
     - [x] Split page text
