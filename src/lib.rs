@@ -2,6 +2,7 @@ extern crate alloc;
 use alloc::string::String;
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
+
 mod embedder;
 mod index;
 mod utils;
@@ -24,7 +25,7 @@ pub struct VecSearch {
 impl VecSearch {
     #[wasm_bindgen(constructor)]
     pub async fn new() -> Result<VecSearch, String> {
-        let embedder = Embedder::new().await?;
+        let embedder = Embedder::load().await?;
         console::log_1(&format!("Loaded embedder").into());
         let index = Index::load();
         console::log_1(&format!("Loaded index into memory").into());

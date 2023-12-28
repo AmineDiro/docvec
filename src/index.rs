@@ -13,8 +13,8 @@ pub fn l2_distance(s1: &[f32], s2: &[f32]) -> f32 {
 }
 
 pub struct Index {
-    content: Vec<String>,
-    embeddings: Vec<f32>,
+    pub content: Vec<String>,
+    pub embeddings: Vec<f32>,
 }
 
 impl Index {

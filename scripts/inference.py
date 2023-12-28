@@ -8,12 +8,14 @@ def average_pool(last_hidden_states: Tensor, attention_mask: Tensor) -> Tensor:
     return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
 
 
-input_texts = [
-    "what is the capital of China?",
-]
+def read_input():
+    with open("./data/index_content.txt", "r") as f:
+        return f.read().splitlines()[:10]
 
-tokenizer = AutoTokenizer.from_pretrained("./gte-small")
-model = AutoModel.from_pretrained("./gte-small")
+
+input_texts = read_input()
+tokenizer = AutoTokenizer.from_pretrained("./model/gte-small")
+model = AutoModel.from_pretrained("./model/gte-small")
 
 # Tokenize the input texts
 batch_dict = tokenizer(
@@ -25,8 +27,13 @@ batch_dict = tokenizer(
 )
 
 outputs = model(**batch_dict)
+embeddings = average_pool(outputs.last_hidden_state, batch_dict["attention_mask"])
+data = embeddings.flatten().tolist()
+import struct
 
-# embeddings = average_pool(outputs.last_hidden_state, batch_dict["attention_mask"])
+buffer = struct.pack(f"<{len(data)}f", *data)
+with open("../data/index_embedding.bin", "wb") as f:
+    f.write(buffer)
 
 # (Optionally) normalize embeddings
 # embeddings = F.normalize(embeddings, p=2, dim=1)
