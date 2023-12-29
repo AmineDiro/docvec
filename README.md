@@ -1,6 +1,6 @@
 # DocVec - Wasm meets Semantic search
 
-![Alt Text](./data/docvec.gif)
+![Alt Text](./data/output.gif)
 
 I wanted an excuse to learn `webgpu` and `wasm` for a longtime. Then I attended a Rust wasm meetup and was "forced" to find a project to learn about these technologies.
 The idea is to have a fully working semantic search engine client side, meaning having the model run ENTIRELY on the client machine.

@@ -1,3 +1,4 @@
+use crate::DIM;
 use std::{collections::HashMap, sync::Arc};
 use wonnx::utils::{InputTensor, OutputTensor};
 
@@ -8,17 +9,17 @@ use tokenizers::tokenizer::Tokenizer;
 static MODEL_DATA: &'static [u8] = include_bytes!("../model/gte-small/onnx/sim_model.onnx",);
 static TOKENIZER_DATA: &'static [u8] = include_bytes!("../model/gte-small/tokenizer.json",);
 
-fn average_pool(last_hidden_layer: &[f32], mask: &[i32], embedding_dim: usize) -> Vec<f32> {
+fn average_pool(last_hidden_layer: &[f32], mask: &[i32]) -> Vec<f32> {
     // input 1,512,emb_d , len = 1x512
     // mask is 1,512
     // let mut avg: Vec<f32> = vec![0.0; 384];
     let mask_sum: i32 = mask.iter().sum();
 
     let avg = last_hidden_layer
-        .chunks(embedding_dim)
+        .chunks(DIM)
         .enumerate()
         .filter(|(idx, _)| mask[*idx] == 1)
-        .fold(vec![0.0; embedding_dim], |acc, (_, layer)| {
+        .fold(vec![0.0; DIM], |acc, (_, layer)| {
             dbg!(&layer.len());
             acc.into_iter()
                 .zip(layer)
@@ -74,7 +75,7 @@ impl Embedder {
         match output.get(&"last_hidden_state".to_string()).unwrap() {
             OutputTensor::F32(last_hidden_layer) => {
                 dbg!(&last_hidden_layer[..10]);
-                let emb = average_pool(last_hidden_layer, &attention_mask, 384);
+                let emb = average_pool(last_hidden_layer, &attention_mask);
                 Ok(emb)
             }
             _ => Err("can't have other type".to_string()),

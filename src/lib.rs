@@ -10,6 +10,8 @@ use embedder::Embedder;
 use index::Index;
 use web_sys::console;
 
+const DIM: usize = 384;
+
 #[wasm_bindgen(start)]
 pub fn main() {
     console_error_panic_hook::set_once();
@@ -35,8 +37,9 @@ impl VecSearch {
     // TODO : return a REsult<Array,..>
     pub async fn search(&self, query: String, k: usize) -> Array {
         let query_emb = self.embedder.embed_query(query).await.unwrap();
+        console::log_1(&format!("Embedding query_emb {:?}", &query_emb[..10]).into());
         let neighbors = self.index.vec_search(&query_emb, k);
-        let array = Array::new_with_length(neighbors.len() as u32);
+        let array = Array::new();
         for value in neighbors {
             array.push(&(value).into());
         }

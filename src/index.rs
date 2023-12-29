@@ -1,6 +1,6 @@
+use crate::DIM;
 static INDEX_CONTENT: &'static str = include_str!("../data/index_content.txt");
 static INDEX_EMBEDDINGS: &'static [u8] = include_bytes!("../data/index_embedding.bin");
-const DIM: usize = 384;
 
 #[inline]
 pub fn l2_distance(s1: &[f32], s2: &[f32]) -> f32 {
@@ -60,6 +60,8 @@ mod tests {
         assert_eq!(index.content[0],
 "Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.Python is dynamically typed and"
         );
+        assert_eq!(index.content.len(), 317);
+        assert_eq!(index.embeddings.len(), 317 * 384);
         assert_eq!(
             &index.embeddings[..10],
             &[
@@ -79,8 +81,9 @@ mod tests {
     #[test]
     fn test_vec_search() {
         let index = Index::load();
-        let res = index.vec_search(&index.embeddings[..384], 10);
+        let res = index.vec_search(&index.embeddings[..384], 1);
         dbg!(&res);
         assert_eq!(res[0], index.content[0]);
+        assert_eq!(res.len(), 1);
     }
 }
