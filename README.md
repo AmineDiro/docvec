@@ -2,9 +2,9 @@
 
 ![Alt Text](./data/output.gif)
 
-I wanted an excuse see what all the hype about `WebGPU` and `WebAssembly` was all about for a long time. Then I attended a Rust Wasm meetup and was really to find a project to learn about these technologies.
+I wanted an excuse see what all the hype about `WebGPU` and `WebAssembly` was all about for a long time. Then I attended a Rust Wasm meetup and was eager to find a project to learn about these technologies.
 
-A few weeks later, `docVec` is a client-side fully working semantic search engine, ie. having the model run ENTIRELY on the client machine. This is NOT a production-ready project.
+`docVec` is a client-side fully working semantic search engine, ie. having the model run ENTIRELY on the client machine. This is NOT a production-ready project.
 
 My goals for the project were to:
 
