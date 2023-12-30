@@ -2,15 +2,17 @@
 
 ![Alt Text](./data/output.gif)
 
-I wanted an excuse to learn `webgpu` and `wasm` for a longtime. Then I attended a Rust wasm meetup and was "forced" to find a project to learn about these technologies.
-The idea is to have a fully working semantic search engine client side, meaning having the model run ENTIRELY on the client machine.
-This is NOT a production ready project. The
-My goal for the project were:
+I wanted an excuse see what all the hype about `WebGPU` and `WebAssembly` was all about for a long time. Then I attended a Rust Wasm meetup and was really to find a project to learn about these technologies.
 
-- Use the Hardware for model inference and if possible use `wgpu`: Luckily I found the amazing project`wonnx`. I had to hack around some issues of runnign transformers and also implement some missing onnx operators (cf. PR) for this to work. Also I am still working on reimplementing the project's `MatMul` broadcasting and try if possible improving the compute shader performance.
-- Use Rust of course. Again amazing project `wasm-bindgen`
-- Keep the JS to a minimum...
-- Simple index : flat vector for now
+A few weeks later, `docVec` is a client-side fully working semantic search engine, ie. having the model run ENTIRELY on the client machine. This is NOT a production-ready project.
+
+My goals for the project were to:
+
+- Use Rust for NN inference
+- Use the GPU for model inference and see how mature it is to use wgpu: Luckily, I found the amazing project wonnx. I had to hack around some issues of running transformers and also implement some missing ONNX operators (cf. PR) for this to work. Also, I am still working on re-implementing the project's MatMul broadcasting and trying if possible to improve the compute shader performance.
+- Implement the whole logic in a webassembly module in Rust. The goal here is to understand some internals of wasm and the limitations that come from that
+- Keep the JS to a minimum.
+- Don't overcomplicate the search engine. For now a simple index of flat vector suffice.
 
 ## Maintainer
 
