@@ -38,6 +38,7 @@ My goals for the project were to:
    ```bash
    cd ..
    git clone https://github.com/AmineDiro/wonnx.git
+   cd wonnx
    git checkout broadcast-matmul
    ```
 
