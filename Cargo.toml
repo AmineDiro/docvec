@@ -10,20 +10,15 @@ crate-type = ["cdylib"]
 
 [dependencies]
 console_error_panic_hook = "0.1.7"
-js-sys = "0.3.65"
+js-sys = "0.3.52"
 pollster = "0.3.0"
-wasm-bindgen = "0.2.88"
-wasm-bindgen-futures = "0.4.38"
 wonnx = { path = "../wonnx/wonnx" }
+wasm-bindgen = { version = "0.2.75", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4.25"
 tokenizers = { default-features = false, features = [
     "unstable_wasm",
 ], git = "https://github.com/huggingface/tokenizers" }
-
-[dependencies.web-sys]
-# This version worked !
-# version = "=0.3.61"
-version = "=0.3.64"
-features = [
+web-sys = { version = "=0.3.61", features = [
     "console",
     "Document",
     "Navigator",
@@ -141,7 +136,7 @@ features = [
     "HtmlCanvasElement",
     "OffscreenCanvas",
     "Window",
-]
+] }
 
 [profile.release]
 lto = true

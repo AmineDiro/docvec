@@ -37,12 +37,12 @@ pub struct Embedder {
 impl Embedder {
     pub async fn load() -> Result<Embedder, String> {
         // console::log_1(&"Loading model from bytes".into());
-        let tokenizer = Tokenizer::from_bytes(TOKENIZER_DATA).unwrap();
+        let tokenizer = Tokenizer::from_bytes(TOKENIZER_DATA).expect("can't load tokenizer");
         Ok(Self {
             session: Arc::new(
                 wonnx::Session::from_bytes(MODEL_DATA)
                     .await
-                    .map_err(|_| "Can't load model bytes")?,
+                    .map_err(|e| format!("Can't load model bytes: {:?}", e))?,
             ),
             tokenizer,
         })
